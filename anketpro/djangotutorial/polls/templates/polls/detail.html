@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}{{ question.question_text }} - AnketPro{% endblock %}
+
+{% block content %}
+<div class="card card--wide fade-in">
+    <form action="{% url 'polls:vote' question.id %}" method="post">
+        {% csrf_token %}
+
+        <h2 class="card__title">{{ question.question_text }}</h2>
+
+        {% if error_message %}
+            <div class="alert alert--error">{{ error_message }}</div>
+        {% endif %}
+
+        <div class="choices">
+            {% for choice in question.choice_set.all %}
+                <label class="choice" for="choice{{ forloop.counter }}">
+                    <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}">
+                    <span class="choice__radio"></span>
+                    <span class="choice__text">{{ choice.choice_text }}</span>
+                </label>
+            {% endfor %}
+        </div>
+
+        <div class="card__actions">
+            {% if user.is_authenticated %}
+                <button type="submit" class="btn btn--primary btn--full">Oy Gönder</button>
+            {% else %}
+                <div class="alert alert--info">
+                    Oy kullanabilmek için <a href="{% url 'polls:login' %}">giriş yapın</a>.
+                </div>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}

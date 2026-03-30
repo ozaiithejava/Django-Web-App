@@ -1,0 +1,143 @@
+{% extends "admin/change_list.html" %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+    .admin-dashboard-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        margin: 20px 0 32px 0;
+        font-family: 'Inter', -apple-system, sans-serif;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+    }
+    
+    .stat-card {
+        background: #ffffff;
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        border-left: 6px solid #6366f1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .stat-card__label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #64748b;
+        letter-spacing: 0.05em;
+    }
+    
+    .stat-card__value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1e293b;
+    }
+
+    .chart-container {
+        background: #ffffff;
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        height: 350px !important;
+        position: relative;
+    }
+    
+    #pollChart {
+        width: 100% !important;
+        height: 100% !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard-wrapper">
+    <div class="stats-grid">
+        <div class="stat-card" style="border-color: #6366f1;">
+            <span class="stat-card__label">Toplam Anket</span>
+            <span class="stat-card__value">{{ dashboard_stats.total_polls }}</span>
+        </div>
+        <div class="stat-card" style="border-color: #10b981;">
+            <span class="stat-card__label">Toplam Oy</span>
+            <span class="stat-card__value">{{ dashboard_stats.total_votes }}</span>
+        </div>
+        <div class="stat-card" style="border-color: #f59e0b;">
+            <span class="stat-card__label">Kayıtlı Kullanıcı</span>
+            <span class="stat-card__value">{{ dashboard_stats.total_users }}</span>
+        </div>
+    </div>
+    
+    <div class="chart-container">
+        <canvas id="pollChart"></canvas>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const renderChart = () => {
+            const ctx = document.getElementById('pollChart');
+            if (!ctx) return;
+            
+            const rawData = JSON.parse('{{ chart_data|safe }}');
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: rawData.map(item => item.label),
+                    datasets: [{
+                        label: 'Oy Sayısı',
+                        data: rawData.map(item => item.data),
+                        backgroundColor: 'rgba(99, 102, 241, 0.7)',
+                        hoverBackgroundColor: 'rgba(99, 102, 241, 0.9)',
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        title: { 
+                            display: true, 
+                            text: 'En Çok Oy Alan 5 Anket',
+                            font: { size: 16, weight: 'bold' },
+                            padding: { bottom: 20 }
+                        }
+                    },
+                    scales: {
+                        y: { 
+                            beginAtZero: true,
+                            ticks: { stepSize: 1, color: '#64748b' },
+                            grid: { color: '#f1f5f9' }
+                        },
+                        x: {
+                            ticks: { color: '#64748b' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        };
+        
+        if (window.Chart) {
+            renderChart();
+        } else {
+            // Fallback load monitoring if CDN was slow
+            const script = document.querySelector('script[src*="chart.js"]');
+            if (script) script.onload = renderChart;
+        }
+    })();
+</script>
+
+{{ block.super }}
+{% endblock %}

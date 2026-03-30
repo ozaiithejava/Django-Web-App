@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Profili Düzenle - AnketPro{% endblock %}
+
+{% block content %}
+<div class="card card--narrow fade-in">
+    <h2 class="card__title">Profili Düzenle</h2>
+    <form method="post" action="{% url 'polls:edit_profile' %}" class="form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="bio" class="form-label">Hakkımda</label>
+            <textarea name="bio" id="bio" rows="4" class="form-control" placeholder="Kendinden bahset..." maxlength="500">{{ request.user.profile.bio }}</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label">Görünüm Teması</label>
+            <div class="theme-picker">
+                <label class="theme-choice">
+                    <input type="radio" name="theme" value="beyaz" {% if request.user.profile.theme == 'beyaz' %}checked{% endif %}>
+                    <span class="theme-choice__box theme-choice__box--beyaz"></span>
+                    <span class="theme-choice__label">Yaz Bulutu</span>
+                </label>
+                
+                <label class="theme-choice">
+                    <input type="radio" name="theme" value="siyah" {% if request.user.profile.theme == 'siyah' %}checked{% endif %}>
+                    <span class="theme-choice__box theme-choice__box--siyah"></span>
+                    <span class="theme-choice__label">Gece Modu</span>
+                </label>
+                
+                <label class="theme-choice">
+                    <input type="radio" name="theme" value="mor" {% if request.user.profile.theme == 'mor' %}checked{% endif %}>
+                    <span class="theme-choice__box theme-choice__box--mor"></span>
+                    <span class="theme-choice__label">Lavanta</span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary btn--full">Değişiklikleri Kaydet</button>
+            <a href="{% url 'polls:profile' request.user.username %}" class="btn btn--ghost btn--full">İptal Et</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

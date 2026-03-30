@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Giriş Yap - AnketPro{% endblock %}
+
+{% block content %}
+<div class="card card--narrow fade-in auth-card">
+    <div class="card__header">
+        <h2 class="card__title">Hoş Geldin</h2>
+        <p class="card__subtitle">Fikirlerini paylaşmak için giriş yap.</p>
+    </div>
+    
+    <form method="post" action="{% url 'polls:login' %}" class="form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="id_username" class="form-label">Kullanıcı Adı</label>
+            <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" required id="id_username" class="form-control" placeholder="Adını yaz...">
+        </div>
+        
+        <div class="form-group">
+            <label for="id_password" class="form-label">Şifre</label>
+            <input type="password" name="password" autocomplete="current-password" required id="id_password" class="form-control" placeholder="Şifreni yaz...">
+        </div>
+        
+        {% if form.errors %}
+            <div class="alert alert--error">Giriş başarısız. Lütfen bilgilerinizi kontrol edin.</div>
+        {% endif %}
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary btn--full">Giriş Yap</button>
+            <input type="hidden" name="next" value="{{ next }}">
+        </div>
+    </form>
+    
+    <div class="card__footer auth-footer">
+        Hesabın yok mu? <a href="{% url 'polls:register' %}" class="link">Şimdi Kayıt Ol</a>
+    </div>
+</div>
+{% endblock %}

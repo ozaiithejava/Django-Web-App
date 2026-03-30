@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Anketler - AnketPro{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+    <h1>Aktif Anketler</h1>
+    <p class="page-subtitle">Topluluğun nabzını tut, fikrini paylaş.</p>
+</div>
+
+{% if latest_question_list %}
+    <div class="poll-grid">
+    {% for question in latest_question_list %}
+        <a href="{% url 'polls:detail' question.id %}" class="poll-card">
+            <div class="poll-card__body">
+                <h3 class="poll-card__title">{{ question.question_text }}</h3>
+            </div>
+            <div class="poll-card__footer">
+                <span class="poll-card__date">{{ question.pub_date|date:"d M Y" }}</span>
+                <span class="poll-card__arrow">→</span>
+            </div>
+        </a>
+    {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <div class="empty-state__icon">📋</div>
+        <p>Şu anda aktif anket bulunmuyor.</p>
+    </div>
+{% endif %}
+{% endblock %}

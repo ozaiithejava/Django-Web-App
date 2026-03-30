@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Sonuçlar: {{ question.question_text }} - AnketPro{% endblock %}
+
+{% block content %}
+<div class="card card--wide fade-in">
+    <h2 class="card__title">{{ question.question_text }}</h2>
+    <p class="card__subtitle">Anket Sonuçları</p>
+
+    {% load polls_extras %}
+
+    <div class="results">
+        {% for choice in question.choice_set.all %}
+            <div class="result-bar">
+                <div class="result-bar__header">
+                    <span class="result-bar__label">{{ choice.choice_text }}</span>
+                    <span class="result-bar__count">{{ choice.votes }} oy</span>
+                </div>
+                <div class="result-bar__track">
+                    <div class="result-bar__fill" style="width: {{ choice.votes|vote_percent:question }}%"></div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="card__actions">
+        <a href="{% url 'polls:index' %}" class="btn btn--ghost">← Anketlere Dön</a>
+    </div>
+</div>
+{% endblock %}

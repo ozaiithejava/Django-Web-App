@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Kayıt Ol - AnketPro{% endblock %}
+
+{% block content %}
+<div class="card card--narrow fade-in auth-card">
+    <div class="card__header">
+        <h2 class="card__title">Aramıza Katıl</h2>
+        <p class="card__subtitle">Yeni bir hesap oluştur ve oy kullanmaya baş.</p>
+    </div>
+    
+    <form method="post" class="form">
+        {% csrf_token %}
+        
+        <div class="registration-form">
+            {% for field in form %}
+                <div class="form-group">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    <div class="form-field-container">
+                        {{ field }}
+                    </div>
+                    {% if field.help_text %}
+                        <p class="form-help">{{ field.help_text }}</p>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <p class="form-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary btn--full">Kayıt Ol</button>
+        </div>
+    </form>
+    
+    <div class="card__footer auth-footer">
+        Zaten hesabın var mı? <a href="{% url 'polls:login' %}" class="link">Giriş Yap</a>
+    </div>
+</div>
+
+<style>
+    /* Styling specifically for the register form fields which are auto-generated */
+    .registration-form input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        background: var(--input-bg);
+        color: var(--text-color);
+        font-family: inherit;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+    
+    .registration-form input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px var(--primary-glow);
+    }
+    
+    .form-help {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin-top: 0.4rem;
+        line-height: 1.4;
+    }
+    
+    .form-error {
+        font-size: 0.8rem;
+        color: #ef4444;
+        margin-top: 0.4rem;
+    }
+</style>
+{% endblock %}

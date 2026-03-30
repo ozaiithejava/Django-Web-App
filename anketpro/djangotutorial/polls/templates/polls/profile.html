@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}@{{ profile_user.username }} - Profil{% endblock %}
+
+{% block content %}
+<div class="profile fade-in">
+    <div class="profile__header">
+        <div class="profile__banner"></div>
+        <div class="profile__avatar">
+            {{ profile_user.username|make_list|first|upper }}
+        </div>
+        <h2 class="profile__name">@{{ profile_user.username }}</h2>
+        <p class="profile__meta">Üyelik: {{ profile_user.date_joined|date:"d M Y" }}</p>
+        
+        {% if profile_user.profile.bio %}
+            <p class="profile__bio">{{ profile_user.profile.bio }}</p>
+        {% else %}
+            <p class="profile__bio profile__bio--empty">Henüz bir biyografi eklenmedi.</p>
+        {% endif %}
+        
+        {% if request.user == profile_user %}
+            <a href="{% url 'polls:edit_profile' %}" class="btn btn--outline" style="margin-top:1.5rem;">Profili Düzenle</a>
+        {% endif %}
+    </div>
+    
+    <div class="profile__section">
+        <h3 class="section-title">Rozetler</h3>
+        <div class="badge-grid">
+            {% for badge in profile_user.profile.get_badges %}
+                <div class="badge" style="--badge-accent: {{ badge.color }}">
+                    <div class="badge__icon">{{ badge.icon|default:"⭐" }}</div>
+                    <div class="badge__info">
+                        <span class="badge__name">{{ badge.name }}</span>
+                        <span class="badge__desc">{{ badge.desc }}</span>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">Henüz rozet kazanılmadı.</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div class="profile__section">
+        <h3 class="section-title">İstatistikler</h3>
+        <div class="stats-row">
+            <div class="stat">
+                <span class="stat__value">{{ profile_user.vote_set.count }}</span>
+                <span class="stat__label">Oy Kullanımı</span>
+            </div>
+            <div class="stat">
+                <span class="stat__value">{{ profile_user.profile.get_badges|length }}</span>
+                <span class="stat__label">Rozet</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile__section">
+        <h3 class="section-title">Cevaplanan Anketler</h3>
+        <div class="answered-polls">
+            {% for vote in user_votes %}
+                <div class="answered-card">
+                    <div class="answered-card__content">
+                        <h4 class="answered-card__title">{{ vote.question.question_text }}</h4>
+                        <div class="answered-card__choice">
+                            <span>Senin Cevabın:</span>
+                            <strong>{{ vote.choice.choice_text }}</strong>
+                        </div>
+                    </div>
+                    <div class="answered-card__footer">
+                        <span class="answered-card__date">{{ vote.created_at|date:"d M Y" }}</span>
+                        <a href="{% url 'polls:results' vote.question.id %}" class="btn btn--outline btn--sm">Sonuçlar</a>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">Henüz bir ankete cevap verilmedi.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
