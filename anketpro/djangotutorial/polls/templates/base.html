@@ -7,20 +7,32 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'polls/style.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const userTheme = "{{ current_theme }}";
+            const theme = savedTheme || userTheme || 'beyaz';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-inner">
             <a href="{% url 'polls:index' %}" class="nav-brand">
-                <span class="brand-icon">◆</span>
+                <img src="{% static 'polls/images/logo.png' %}" alt="AnketPro Logo" class="nav-logo">
                 <span>AnketPro</span>
             </a>
             
             <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menü">
                 <span></span><span></span><span></span>
             </button>
-            
+
             <div class="nav-links">
+                <button id="themeToggle" class="theme-toggle" aria-label="Temayı Değiştir">
+                    <span class="moon-icon">🌙</span>
+                    <span class="sun-icon">☀️</span>
+                </button>
                 {% if user.is_authenticated %}
                     <a href="{% url 'polls:index' %}" class="nav-link">Anketler</a>
                     <a href="{% url 'polls:profile' user.username %}" class="nav-link">
@@ -29,7 +41,14 @@
                     </a>
                     <form action="{% url 'polls:logout' %}" method="post" style="display:inline;">
                         {% csrf_token %}
-                        <button type="submit" class="nav-link logout-btn">Çıkış</button>
+                        <button type="submit" class="nav-link logout-btn" aria-label="Çıkış Yap">
+                            <span>Çıkış</span>
+                            <svg class="logout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                        </button>
                     </form>
                 {% else %}
                     <a href="{% url 'polls:login' %}" class="nav-link">Giriş Yap</a>
@@ -46,7 +65,42 @@
     </main>
 
     <footer class="footer">
-        <p>AnketPro &copy; 2026</p>
+        <div class="container footer-content">
+            <p>AnketPro &copy; 2026 <a href="{% url 'polls:changelog' %}" class="footer-version">v2.0</a></p>
+            <div class="footer-divider"></div>
+            <p class="footer-credits">
+                <span>made with</span>
+                <span class="heart-icon">❤</span>
+                <span>by</span>
+                <span class="author-name">aydın yiğit oğuz</span>
+            </p>
+        </div>
     </footer>
+
+    <script>
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            const html = document.documentElement;
+            const themes = ['beyaz', 'siyah', 'mor'];
+            const currentTheme = html.getAttribute('data-theme') || 'beyaz';
+            const currentIndex = themes.indexOf(currentTheme);
+            const nextIndex = (currentIndex + 1) % themes.length;
+            const newTheme = themes[nextIndex];
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Sync with backend if logged in
+            {% if user.is_authenticated %}
+            fetch("{% url 'polls:edit_profile' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: `theme=${newTheme}&json=1`
+            });
+            {% endif %}
+        });
+    </script>
 </body>
 </html>

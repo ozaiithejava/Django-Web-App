@@ -47,6 +47,10 @@ class ResultsView(generic.DetailView):
     template_name = "polls/results.html"
 
 
+class ChangelogView(generic.TemplateView):
+    template_name = "polls/changelog.html"
+
+
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
     
@@ -115,11 +119,20 @@ def edit_profile(request):
         profile = UserProfile.objects.create(user=request.user)
         
     if request.method == 'POST':
-        bio = request.POST.get('bio', '')
-        theme = request.POST.get('theme', 'beyaz')
-        profile.bio = bio
+        bio = request.POST.get('bio')
+        theme = request.POST.get('theme')
+        
+        if bio is not None:
+            profile.bio = bio
+        
         if theme in ['beyaz', 'siyah', 'mor']:
             profile.theme = theme
+            
         profile.save()
+        
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.POST.get('json'):
+            from django.http import JsonResponse
+            return JsonResponse({'status': 'success'})
+            
         return HttpResponseRedirect(reverse('polls:profile', args=(request.user.username,)))
     return render(request, 'polls/profile_edit.html')
